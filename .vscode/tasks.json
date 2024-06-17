@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile plug",
+            "command": "make libplug.so",
+            "type": "shell",
+            "args": [],
+            "presentation": {
+                "reveal": "never"
+            },
+            "group": "build"
+        }
+    ]
+}
