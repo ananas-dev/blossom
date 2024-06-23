@@ -1,0 +1,16 @@
+[
+  {
+    "label": "Run",
+    "command": "make && ./blossom",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "Compile plugin",
+    "command": "make libplug.so",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": true,
+    "reveal": "never"
+  }
+]

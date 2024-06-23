@@ -67,6 +67,7 @@ int main(int, char**)
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+    SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0"); // Prevent disabling the compositor
     SDL_Window* window = SDL_CreateWindow("Blossom", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
     if (window == nullptr)
     {
@@ -84,7 +85,7 @@ int main(int, char**)
     ImGuiIO &io = ImGui::GetIO(); (void)io;
 
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    ImFont *font = io.Fonts->AddFontFromFileTTF("fonts/Inter-Regular.ttf", 20);
+    ImFont *font = io.Fonts->AddFontFromFileTTF("fonts/Inter-Regular.ttf", 18);
     IM_ASSERT(font != nullptr);
 
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -120,6 +121,7 @@ int main(int, char**)
     PlugState state = {
         .counter = 0,
         .show_add_player_window = false,
+        .show_create_tournament_window = false,
         .num_players = 0,
     };
 
@@ -158,7 +160,7 @@ int main(int, char**)
                     plug_init(&state);
                 }
             }
-            
+
         }
 
         // Start the Dear ImGui frame

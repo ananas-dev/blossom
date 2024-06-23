@@ -4,6 +4,7 @@
 #include <string>
 #include <sqlite3.h>
 #include <thread>
+#include <ctime>
 
 enum Title: int {
     TITLE_NONE,
@@ -27,6 +28,19 @@ enum Federation: int {
     // todo
 };
 
+struct Tournament {
+    char *name;
+    char *city;
+    char *federation;
+    time_t date_of_start;
+    time_t date_of_end;
+    int num_players;
+    int num_rated;
+    char *type_of_tournament;
+    char *chief_arbiter;
+    char *time_control;
+};
+
 struct Action {
     void *data;
     void *pointer;
@@ -45,6 +59,7 @@ struct Player {
 struct PlugState {
     int counter;
     bool show_add_player_window;
+    bool show_create_tournament_window;
     int num_players;
     sqlite3 *db_handle;
     std::vector<Player> players;

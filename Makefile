@@ -17,7 +17,7 @@
 EXE = blossom
 IMGUI_DIR = imgui
 IMGUI_SOURCES = $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
-SOURCES = 
+SOURCES =
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_sdl2.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
 SOURCES += $(IMGUI_DIR)/misc/freetype/imgui_freetype.cpp
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
@@ -90,7 +90,7 @@ all: $(EXE) libplug.so
 	@echo Build complete for $(ECHO_MESSAGE)
 
 libplug.so: plug.cpp libimgui.so plug.h
-	$(CXX) -shared -fPIC -o $@ plug.cpp $(CXXFLAGS) $(LIBS)
+	$(CXX) -shared -fPIC -o $@ plug.cpp sfd.c  $(CXXFLAGS) $(LIBS)
 
 libimgui.so: $(IMGUI_SOURCES)
 	$(CXX) $(CXXFLAGS) -shared -fPIC -I$(IMGUI_DIR) -o $@ $^

@@ -1,6 +1,9 @@
 #include "plug.h"
+#include <cassert>
+#include <cstddef>
 #include <stdio.h>
 #include "imgui/imgui.h"
+#include "sfd.h"
 
 extern "C" {
 
@@ -14,7 +17,9 @@ void plug_update(PlugState *state) {
     ImGui::BeginMainMenuBar();
 
     if (ImGui::BeginMenu("Tournament")) {
-        ImGui::MenuItem("Create");
+        if (ImGui::MenuItem("Create")) {
+            state->show_create_tournament_window = true;
+        }
         ImGui::EndMenu();
     };
 
@@ -35,7 +40,7 @@ void plug_update(PlugState *state) {
     };
 
     ImGui::EndMainMenuBar();
-    
+
     {
         ImGui::Begin("Control", NULL, ImGuiWindowFlags_NoCollapse);                          // Create a window called "Hello, world!" and append into it.
 
@@ -143,6 +148,57 @@ void plug_update(PlugState *state) {
 
         ImGui::End();
 
+    }
+
+    if (state->show_create_tournament_window) {
+        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
+        if (ImGui::Begin("Create tournament", nullptr, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize)) {
+            static Tournament tournament;
+
+            if (tournament.name == nullptr) {
+                tournament.name = (char*)malloc(30 * sizeof(char));
+                assert(tournament.name != NULL);
+                tournament.name[0] = '\0';
+            }
+
+            if (tournament.federation == nullptr) {
+                tournament.federation = (char*)malloc(4 * sizeof(char));
+                assert(tournament.federation != NULL);
+                tournament.federation[0] = '\0';
+            }
+
+            ImGui::InputText("Name", tournament.name, 30);
+            ImGui::InputText("Federation", tournament.federation, 4, ImGuiInputTextFlags_CharsUppercase);
+
+            if (ImGui::Button("Open File")) {
+                sfd_Options opt = {
+                  .title        = "Open Image File",
+                  .filter_name  = "Image File",
+                  .filter       = "*.png|*.jpg",
+                };
+
+                const char *filename = sfd_open_dialog(&opt);
+
+                if (filename) {
+                  printf("Got file: '%s'\n", filename);
+                } else {
+                  printf("Open canceled\n");
+                }
+
+                printf("%s\n", sfd_get_error());
+            }
+
+            ImGui::Spacing();
+
+            if (ImGui::Button("Create tournament")) {
+                state->show_create_tournament_window = false;
+            }
+            ImGui::End();
+        }
+        ImGui::PopStyleVar();
     }
 
 }
