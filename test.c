@@ -65,16 +65,21 @@ int main(int argc, char *argv[]) {
     igCreateContext(NULL);
 
     // set docking
-    ImGuiIO *ioptr = igGetIO();
-    ioptr->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
+    ImGuiIO *io = igGetIO();
+    io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
     //ioptr->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
-    ioptr->ConfigFlags |= ImGuiConfigFlags_DockingEnable;       // Enable Docking
+    io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;       // Enable Docking
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     igStyleColorsDark(NULL);
-    ImFontAtlas_AddFontFromFileTTF(ioptr->Fonts, "fonts/Inter-Regular.ttf", 18, NULL, NULL);
+    ImGuiStyle *style = igGetStyle();
+    style->WindowBorderSize = 0.0f;
+    style->FrameRounding = 4.0f;
+    style->GrabRounding = style->FrameRounding;
+
+    ImFontAtlas_AddFontFromFileTTF(io->Fonts, "fonts/Inter-Regular.ttf", 18, NULL, NULL);
 
     void *libplug = dlopen("target/release/libplug.so", RTLD_NOW);
 
@@ -127,19 +132,10 @@ int main(int argc, char *argv[]) {
         // render
         igRender();
         glfwMakeContextCurrent(window);
-        glViewport(0, 0, (int)ioptr->DisplaySize.x, (int)ioptr->DisplaySize.y);
+        glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());
-    #ifdef IMGUI_HAS_DOCK
-        if (ioptr->ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
-        GLFWwindow *backup_current_window = glfwGetCurrentContext();
-        igUpdatePlatformWindows();
-        igRenderPlatformWindowsDefault(NULL, NULL);
-        glfwMakeContextCurrent(backup_current_window);
-        }
-    #endif
         glfwSwapBuffers(window);
     }
 

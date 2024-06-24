@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[repr(u8)]
 pub enum Sex {
     None = 0,
@@ -6,7 +6,7 @@ pub enum Sex {
     Woman = 2,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[repr(u8)]
 pub enum Title {
     None = 0,
@@ -16,7 +16,7 @@ pub enum Title {
     Cm = 4,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Player {
     pub name: String,
     pub federation: String,

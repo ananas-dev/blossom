@@ -1,4 +1,4 @@
-use std::{ptr, sync::mpsc, thread};
+use std::{ffi::CString, ptr, sync::mpsc, thread};
 
 mod db;
 mod imgui;
@@ -110,8 +110,30 @@ pub extern "C" fn plug_update(state: *mut PlugState) {
             igTableSetupColumn(cstr!("Rtg FIDE"), 0, 0.0, 0);
             igTableHeadersRow();
 
-            for player in state.players.iter() {
-                // igTableNextRow(0, min_row_height)
+            for (row, player) in state.players.iter().enumerate() {
+                igTableNextRow(0, 0.0);
+
+                igTableSetColumnIndex(0);
+                igText(cstr!("%ld"), row);
+
+                igPushStyleColor_Vec4(
+                    ImGuiCol_FrameBg as i32,
+                    ImVec4 {
+                        x: 0.0,
+                        y: 0.0,
+                        z: 0.0,
+                        w: 0.0,
+                    },
+                );
+                igTableSetColumnIndex(1);
+                igPushItemWidth(-1.0);
+                igPushID_Int((7 * row + 1) as i32);
+
+                let test_str = CString::new("TEsta aaa");
+
+                // igInputText(cstr!("##name"), buf, buf_size, flags, callback, user_data)
+                igPopItemWidth();
+                igPopStyleColor(1);
             }
 
             igEndTable();
@@ -119,12 +141,14 @@ pub extern "C" fn plug_update(state: *mut PlugState) {
 
         igEnd();
 
+        igShowDemoWindow(ptr::null_mut());
+
         igBegin(cstr!("Control"), ptr::null_mut(), 0);
 
         if igButton(cstr!("Add player"), ImVec2 { x: 0.0, y: 0.0 }) {
             let player = Player::default();
 
-            println!("[DB_THREAD] {:#?}", player);
+            state.players.push(player.clone());
 
             state
                 .db_tx
