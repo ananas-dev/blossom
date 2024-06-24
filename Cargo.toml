@@ -6,3 +6,6 @@ edition = "2021"
 [lib]
 name = "plug"
 crate-type = ["cdylib"]
+
+[dependencies]
+rusqlite = { version = "0.31.0", features = ["bundled"] }

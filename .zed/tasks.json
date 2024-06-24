@@ -8,7 +8,7 @@
   },
   {
     "label": "Compile plugin",
-    "command": "make libplug.so",
+    "command": "cargo build --release",
     "use_new_terminal": false,
     "allow_concurrent_runs": true,
     "reveal": "never"
