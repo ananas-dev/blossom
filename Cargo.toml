@@ -8,4 +8,4 @@ name = "plug"
 crate-type = ["cdylib"]
 
 [dependencies]
-rusqlite = { version = "0.31.0", features = ["bundled"] }
+sqlite3-sys = { version = "0.17.0", features = ["bundled"] }

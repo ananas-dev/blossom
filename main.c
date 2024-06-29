@@ -11,7 +11,7 @@
 #include <windows.h>
 #endif
 #include <GL/gl.h>
-#include "plug2.h"
+#include "plug.h"
 
 
 #ifdef IMGUI_HAS_IMSTR
@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
 
 #if __APPLE__
     // GL 3.2 Core + GLSL 150
@@ -45,7 +46,7 @@ int main(int argc, char *argv[]) {
     // just an extra window hint for resize
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-    window = glfwCreateWindow(1024, 768, "Hello World!", NULL, NULL);
+    window = glfwCreateWindow(1024, 768, "Blossom", NULL, NULL);
 
     if (!window) {
         printf("Failed to create window! Terminating!\n");
@@ -73,13 +74,13 @@ int main(int argc, char *argv[]) {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    igStyleColorsDark(NULL);
+    igStyleColorsLight(NULL);
     ImGuiStyle *style = igGetStyle();
     style->WindowBorderSize = 0.0f;
     style->FrameRounding = 4.0f;
     style->GrabRounding = style->FrameRounding;
 
-    ImFontAtlas_AddFontFromFileTTF(io->Fonts, "fonts/Inter-Regular.ttf", 18, NULL, NULL);
+    ImFontAtlas_AddFontFromFileTTF(io->Fonts, "fonts/Inter-Regular.ttf", 20, NULL, NULL);
 
     void *libplug = dlopen("target/release/libplug.so", RTLD_NOW);
 
@@ -109,10 +110,16 @@ int main(int argc, char *argv[]) {
 
                 libplug = dlopen("target/release/libplug.so", RTLD_NOW);
 
+                plug_state_init = dlsym(libplug, "plug_state_init");
                 plug_state_free = dlsym(libplug, "plug_state_free");
                 plug_init = dlsym(libplug, "plug_init");
                 plug_update = dlsym(libplug, "plug_update");
                 plug_free = dlsym(libplug, "plug_free");
+
+                if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) || glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT)) {
+                    plug_state_free(state);
+                    state = plug_state_init();
+                }
 
                 plug_init(state);
 
