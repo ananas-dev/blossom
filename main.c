@@ -13,7 +13,6 @@
 #include <GL/gl.h>
 #include "plug.h"
 
-
 #ifdef IMGUI_HAS_IMSTR
 #define igBegin igBegin_Str
 #define igSliderFloat igSliderFloat_Str
@@ -23,6 +22,7 @@
 #endif
 
 GLFWwindow *window;
+
 int main(int argc, char *argv[]) {
     if (!glfwInit()) {
         return 1;
@@ -74,7 +74,37 @@ int main(int argc, char *argv[]) {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    igStyleColorsLight(NULL);
+    igStyleColorsDark(NULL);
+
+    ImVec4* colors = igGetStyle()->Colors;
+    colors[ImGuiCol_Text]                   = (ImVec4) { 0.93f, 0.93f, 0.93f, 1.00f };
+    colors[ImGuiCol_WindowBg]               = (ImVec4) { 0.13f, 0.16f, 0.19f, 1.00f };
+    colors[ImGuiCol_Border]                 = (ImVec4) { 0.22f, 0.24f, 0.27f, 1.00f };
+    colors[ImGuiCol_FrameBg]                = (ImVec4) { 0.22f, 0.24f, 0.27f, 1.00f };
+    colors[ImGuiCol_FrameBgHovered]         = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+    colors[ImGuiCol_FrameBgActive]          = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+    colors[ImGuiCol_TitleBg]                = (ImVec4) { 0.13f, 0.16f, 0.19f, 1.00f };
+    colors[ImGuiCol_TitleBgActive]          = (ImVec4) { 0.22f, 0.24f, 0.27f, 1.00f };
+    colors[ImGuiCol_MenuBarBg]              = (ImVec4) { 0.13f, 0.16f, 0.19f, 1.00f };
+    colors[ImGuiCol_CheckMark]              = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+    colors[ImGuiCol_SliderGrab]             = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+    colors[ImGuiCol_SliderGrabActive]       = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+    colors[ImGuiCol_Button]                 = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+    colors[ImGuiCol_ButtonHovered]          = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+    colors[ImGuiCol_ButtonActive]           = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+    colors[ImGuiCol_Header]                 = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+    colors[ImGuiCol_HeaderHovered]          = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+    colors[ImGuiCol_HeaderActive]           = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+    colors[ImGuiCol_ResizeGrip]             = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+    colors[ImGuiCol_ResizeGripHovered]      = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+    colors[ImGuiCol_ResizeGripActive]       = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+    colors[ImGuiCol_Tab]                    = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+    colors[ImGuiCol_TabHovered]             = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+    colors[ImGuiCol_TabActive]              = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+    colors[ImGuiCol_TabUnfocused]           = (ImVec4) { 0.13f, 0.16f, 0.19f, 1.00f };
+    colors[ImGuiCol_TabUnfocusedActive]     = (ImVec4) { 0.22f, 0.24f, 0.27f, 1.00f };
+    colors[ImGuiCol_NavHighlight]           = (ImVec4) { 0.00f, 0.68f, 0.71f, 1.00f };
+
     ImGuiStyle *style = igGetStyle();
     style->WindowBorderSize = 0.0f;
     style->FrameRounding = 4.0f;

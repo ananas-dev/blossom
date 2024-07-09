@@ -1,6 +1,6 @@
 use crate::model::{Player, Tournament};
 use crate::trf;
-use std::fs::{remove_file, File};
+use std::fs::{self, File};
 use std::io::prelude::*;
 use std::process::Command;
 use std::str;
@@ -38,14 +38,14 @@ pub fn pair_players(
         .lines()
         .skip(1)
         .map(|l| {
-            let mut ids = l.trim().split_whitespace();
+            let mut ids = l.split_whitespace();
             let first = ids.next().unwrap().parse().unwrap();
             let second = ids.next().unwrap().parse().unwrap();
             (first, second)
         })
         .collect();
 
-    remove_file(temp_file_path).expect("could not remove temp file");
+    fs::remove_file(temp_file_path).expect("could not remove temp file");
 
     pairings
 }

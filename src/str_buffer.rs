@@ -17,12 +17,9 @@ impl<const SIZE: usize> StrBuffer<SIZE> {
 
         let bytes = str.as_bytes();
 
-        assert!(bytes.len() <= SIZE - 1);
+        assert!(bytes.len() < SIZE);
 
-        for i in 0..bytes.len() {
-            new.0[i] = bytes[i];
-        }
-
+        new.0[..bytes.len()].copy_from_slice(bytes);
         new.0[bytes.len()] = 0;
 
         new

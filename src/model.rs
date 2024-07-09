@@ -25,28 +25,28 @@ impl Display for Sex {
 #[repr(i32)]
 pub enum Title {
     None = 0,
-    GM = 1,
-    IM = 2,
-    FM = 3,
-    CM = 4,
-    WGM = 5,
-    WIM = 6,
-    WFM = 7,
-    WCM = 8,
+    Gm = 1,
+    Im = 2,
+    Fm = 3,
+    Cm = 4,
+    Wgm = 5,
+    Wim = 6,
+    Wfm = 7,
+    Wcm = 8,
 }
 
 impl Display for Title {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Title::None => "",
-            Title::GM => "GM",
-            Title::IM => "IM",
-            Title::FM => "FM",
-            Title::CM => "CM",
-            Title::WGM => "WGM",
-            Title::WIM => "WIM",
-            Title::WFM => "WFM",
-            Title::WCM => "WCM",
+            Title::Gm => "GM",
+            Title::Im => "IM",
+            Title::Fm => "FM",
+            Title::Cm => "CM",
+            Title::Wgm => "WGM",
+            Title::Wim => "WIM",
+            Title::Wfm => "WFM",
+            Title::Wcm => "WCM",
         }
         .fmt(f)
     }
@@ -92,4 +92,32 @@ impl Default for Tournament {
             chief_arbiter: StrBuffer::new(),
         }
     }
+}
+
+#[derive(Debug, Clone, Copy)]
+#[repr(i32)]
+pub enum GameResult {
+    None = 0,
+    WhiteForfeitWin = 1,
+    BlackForfeitWin = 2,
+    WhiteUnratedWin = 3,
+    BlackUnratedLoss = 4,
+    UnratedDraw = 5,
+    WhiteWin = 6,
+    BlackWin = 7,
+    Draw = 8,
+    HalfPointBye = 9,
+    FullPointBye = 10,
+    PairingBye = 11,
+    ZeroPointBye = 12,
+}
+
+pub struct Game {
+    pub white: usize,
+    pub black: usize,
+    pub result: GameResult,
+}
+
+pub struct Round {
+    pub games: Vec<Game>,
 }

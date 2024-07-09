@@ -10,13 +10,55 @@ use std::{
     sync::mpsc,
 };
 
+pub trait Effect {
+    fn inv(self) -> Self;
+}
+
+#[derive(Clone)]
+pub enum PlayerEffect {
+    Add {
+        new: Player,
+    },
+    UpdateName {
+        new: StrBuffer<34>,
+        old: StrBuffer<34>,
+    },
+    UpdateFed {
+        new: StrBuffer<4>,
+        old: StrBuffer<4>,
+    },
+    UpdateSex {
+        new: Sex,
+        old: Sex,
+    },
+    UpdateTitle {
+        new: Title,
+        old: Title,
+    },
+    Remove {
+        old: Player,
+    },
+}
+
+impl Effect for PlayerEffect {
+    fn inv(self) -> Self {
+        match self {
+            PlayerEffect::Add { new } => PlayerEffect::Remove { old: new },
+            PlayerEffect::UpdateName { new, old } => {
+                PlayerEffect::UpdateName { new: old, old: new }
+            }
+            PlayerEffect::UpdateFed { new, old } => PlayerEffect::UpdateFed { new: old, old: new },
+            PlayerEffect::UpdateSex { new, old } => PlayerEffect::UpdateSex { new: old, old: new },
+            PlayerEffect::UpdateTitle { new, old } => {
+                PlayerEffect::UpdateTitle { new: old, old: new }
+            }
+            PlayerEffect::Remove { old } => PlayerEffect::Add { new: old },
+        }
+    }
+}
+
 pub enum Task {
-    AddPlayer { id: i32, player: Player },
-    UpdatePlayerName { id: i32, name: StrBuffer<34> },
-    UpdatePlayerSex { id: i32, sex: Sex },
-    UpdatePlayerTitle { id: i32, title: Title },
-    RemovePlayer { id: i32 },
-    SwapPlayer { first_id: i32, second_id: i32 },
+    Player { id: i32, task: PlayerEffect },
     Stop,
 }
 
@@ -120,108 +162,118 @@ pub fn worker(db_path: &str, rx: mpsc::Receiver<Task>) -> Result<(), ()> {
 
     for task in rx {
         match task {
-            Task::AddPlayer { id, player } => {
-                let stmt = db.prepare(
-                    "INSERT INTO players (
-                        id,
-                        name,
-                        federation,
-                        sex,
-                        title,
-                        fide_rating,
-                        fide_id
-                    ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-                );
+            Task::Player { id, task } => match task {
+                PlayerEffect::Add { new } => {
+                    let stmt = db.prepare(
+                        "INSERT INTO players (
+                                id,
+                                name,
+                                federation,
+                                sex,
+                                title,
+                                fide_rating,
+                                fide_id
+                            ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+                    );
 
-                unsafe {
-                    sqlite3_bind_int(stmt, 1, id);
-                    sqlite3_bind_text(stmt, 2, player.name.as_ptr() as *const i8, -1, None);
-                    sqlite3_bind_text(stmt, 3, player.federation.as_ptr() as *const i8, -1, None);
-                    sqlite3_bind_int(stmt, 4, player.sex as i32);
-                    sqlite3_bind_int(stmt, 5, player.title as i32);
-                    sqlite3_bind_int(stmt, 6, player.fide_rating);
-                    sqlite3_bind_text(stmt, 7, player.federation.as_ptr() as *const i8, -1, None);
+                    unsafe {
+                        sqlite3_bind_int(stmt, 1, id);
+                        sqlite3_bind_text(stmt, 2, new.name.as_ptr(), -1, None);
+                        sqlite3_bind_text(stmt, 3, new.federation.as_ptr(), -1, None);
+                        sqlite3_bind_int(stmt, 4, new.sex as i32);
+                        sqlite3_bind_int(stmt, 5, new.title as i32);
+                        sqlite3_bind_int(stmt, 6, new.fide_rating);
+                        sqlite3_bind_text(stmt, 7, new.federation.as_ptr() as *const i8, -1, None);
 
-                    if sqlite3_step(stmt) != SQLITE_DONE {
-                        return Err(());
-                    }
+                        if sqlite3_step(stmt) != SQLITE_DONE {
+                            return Err(());
+                        }
 
-                    sqlite3_finalize(stmt);
-                };
-            }
-            Task::UpdatePlayerName { id, name } => {
-                let stmt = db.prepare("UPDATE players SET name = ?1 WHERE id = ?2;");
+                        sqlite3_finalize(stmt);
+                    };
+                }
+                PlayerEffect::UpdateName { new, old } => {
+                    let stmt = db.prepare("UPDATE players SET name = ?1 WHERE id = ?2;");
 
-                unsafe {
-                    sqlite3_bind_text(stmt, 1, name.as_ptr() as *const i8, -1, None);
-                    sqlite3_bind_int(stmt, 2, id);
+                    unsafe {
+                        sqlite3_bind_text(stmt, 1, new.as_ptr(), -1, None);
+                        sqlite3_bind_int(stmt, 2, id);
 
-                    if sqlite3_step(stmt) != SQLITE_DONE {
-                        return Err(());
-                    }
+                        if sqlite3_step(stmt) != SQLITE_DONE {
+                            return Err(());
+                        }
 
-                    sqlite3_finalize(stmt);
-                };
-            }
-            Task::UpdatePlayerSex { id, sex } => {
-                let stmt = db.prepare("UPDATE players SET sex = ?1 WHERE id = ?2;");
+                        sqlite3_finalize(stmt);
+                    };
+                }
+                PlayerEffect::UpdateFed { new, old } => {
+                    let stmt = db.prepare("UPDATE players SET federation = ?1 WHERE id = ?2;");
 
-                unsafe {
-                    sqlite3_bind_int(stmt, 1, sex as i32);
-                    sqlite3_bind_int(stmt, 2, id);
+                    unsafe {
+                        sqlite3_bind_text(stmt, 1, new.as_ptr(), -1, None);
+                        sqlite3_bind_int(stmt, 2, id);
 
-                    if sqlite3_step(stmt) != SQLITE_DONE {
-                        return Err(());
-                    }
+                        if sqlite3_step(stmt) != SQLITE_DONE {
+                            return Err(());
+                        }
 
-                    sqlite3_finalize(stmt);
-                };
-            }
-            Task::UpdatePlayerTitle { id, title } => {
-                let stmt = db.prepare("UPDATE players SET title = ?1 WHERE id = ?2;");
+                        sqlite3_finalize(stmt);
+                    };
+                }
+                PlayerEffect::UpdateSex { new, old } => {
+                    let stmt = db.prepare("UPDATE players SET sex = ?1 WHERE id = ?2;");
 
-                unsafe {
-                    sqlite3_bind_int(stmt, 1, title as i32);
-                    sqlite3_bind_int(stmt, 2, id);
+                    unsafe {
+                        sqlite3_bind_int(stmt, 1, new as i32);
+                        sqlite3_bind_int(stmt, 2, id);
 
-                    if sqlite3_step(stmt) != SQLITE_DONE {
-                        return Err(());
-                    }
+                        if sqlite3_step(stmt) != SQLITE_DONE {
+                            return Err(());
+                        }
 
-                    sqlite3_finalize(stmt);
-                };
-            }
-            Task::SwapPlayer {
-                first_id,
-                second_id,
-            } => {
-                todo!()
-            }
-            Task::RemovePlayer { id } => {
-                let stmt = db.prepare("DELETE FROM players WHERE id = ?1;");
+                        sqlite3_finalize(stmt);
+                    };
+                }
+                PlayerEffect::UpdateTitle { new, old } => {
+                    let stmt = db.prepare("UPDATE players SET title = ?1 WHERE id = ?2;");
 
-                unsafe {
-                    sqlite3_bind_int(stmt, 1, id);
+                    unsafe {
+                        sqlite3_bind_int(stmt, 1, new as i32);
+                        sqlite3_bind_int(stmt, 2, id);
 
-                    if sqlite3_step(stmt) != SQLITE_DONE {
-                        return Err(());
-                    }
+                        if sqlite3_step(stmt) != SQLITE_DONE {
+                            return Err(());
+                        }
 
-                    sqlite3_finalize(stmt);
-                };
+                        sqlite3_finalize(stmt);
+                    };
+                }
+                PlayerEffect::Remove { old } => {
+                    let stmt = db.prepare("DELETE FROM players WHERE id = ?1;");
 
-                let stmt = db.prepare("UPDATE players SET id=id-1 WHERE id > ?1;");
+                    unsafe {
+                        sqlite3_bind_int(stmt, 1, id);
 
-                unsafe {
-                    sqlite3_bind_int(stmt, 1, id);
+                        if sqlite3_step(stmt) != SQLITE_DONE {
+                            return Err(());
+                        }
 
-                    if sqlite3_step(stmt) != SQLITE_DONE {
-                        return Err(());
-                    }
+                        sqlite3_finalize(stmt);
+                    };
 
-                    sqlite3_finalize(stmt);
-                };
-            }
+                    let stmt = db.prepare("UPDATE players SET id=id-1 WHERE id > ?1;");
+
+                    unsafe {
+                        sqlite3_bind_int(stmt, 1, id);
+
+                        if sqlite3_step(stmt) != SQLITE_DONE {
+                            return Err(());
+                        }
+
+                        sqlite3_finalize(stmt);
+                    };
+                }
+            },
             Task::Stop => {
                 break;
             }
